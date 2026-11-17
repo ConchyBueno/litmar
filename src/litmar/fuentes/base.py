@@ -35,6 +35,10 @@ class Fuente(ABC):
         max_wait: float = 60.0,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
+        if max_retries < 0:
+            raise ValueError("max_retries debe ser mayor o igual que 0")
+        if backoff < 0 or max_wait < 0:
+            raise ValueError("backoff y max_wait deben ser mayores o iguales que 0")
         self._owns_client = client is None
         self.client = client or httpx.Client(timeout=timeout)
         self.max_retries = max_retries

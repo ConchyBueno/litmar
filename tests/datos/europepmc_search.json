@@ -1,0 +1,21 @@
+{
+  "version": "6.9",
+  "hitCount": 2,
+  "nextCursorMark": "pagina-2",
+  "resultList": {
+    "result": [
+      {
+        "id": "fixture-1",
+        "source": "MED",
+        "doi": "10.1000/EPMC",
+        "title": "Example biomedical study",
+        "pubYear": "2024",
+        "authorList": {"author": [{"fullName": "Garcia A"}, {"collectiveName": "Study Group"}]},
+        "journalInfo": {"journal": {"title": "Example Journal"}},
+        "abstractText": "An example abstract.",
+        "citedByCount": 12
+      },
+      {"id": "fixture-2", "source": "MED", "title": "Record without DOI", "pubYear": "2023"}
+    ]
+  }
+}

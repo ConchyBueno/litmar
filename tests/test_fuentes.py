@@ -57,6 +57,12 @@ def test_fuente_es_abstracta():
         Fuente()
 
 
+@pytest.mark.parametrize("config", [{"max_retries": -1}, {"backoff": -1}, {"max_wait": -1}])
+def test_rechaza_configuracion_de_reintentos_negativa(config):
+    with pytest.raises(ValueError):
+        FuenteDePrueba(**config)
+
+
 def test_reintenta_429_respetando_retry_after():
     fuente, esperas = fuente_de_prueba(
         httpx.Response(429, headers={"Retry-After": "2"}), {"ok": True}
