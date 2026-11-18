@@ -9,9 +9,10 @@ import pytest
 from litmar import Articulo
 from litmar.fuentes import EuropePMC, Fuente
 
-
 RESPUESTA = json.loads(
-    (Path(__file__).parent / "datos" / "europepmc_search.json").read_text(encoding="utf-8")
+    (Path(__file__).parent / "datos" / "europepmc_search_sintetica.json").read_text(
+        encoding="utf-8"
+    )
 )
 
 
@@ -28,15 +29,24 @@ def test_convierte_respuesta_guardada_y_pagina():
         assert isinstance(fuente, Fuente)
         articulos = fuente.buscar("biomedical", n=2)
 
-    assert articulos == [Articulo(
-        title="Example biomedical study", authors=("Garcia A", "Study Group"),
-        year=2024, doi="10.1000/epmc", journal="Example Journal",
-        abstract="An example abstract.", citations=12,
-    )]
+    assert articulos == [
+        Articulo(
+            title="Example biomedical study",
+            authors=("Garcia A", "Study Group"),
+            year=2024,
+            doi="10.1000/epmc",
+            journal="Example Journal",
+            abstract="An example abstract.",
+            citations=12,
+        )
+    ]
     assert peticiones[0].url.path == "/europepmc/webservices/rest/search"
     assert dict(peticiones[0].url.params) == {
-        "query": "biomedical", "format": "json", "resultType": "core",
-        "pageSize": "2", "cursorMark": "*",
+        "query": "biomedical",
+        "format": "json",
+        "resultType": "core",
+        "pageSize": "25",
+        "cursorMark": "*",
     }
     assert peticiones[1].url.params["cursorMark"] == "pagina-2"
 
@@ -55,12 +65,16 @@ def test_limita_resultados_y_hereda_reintentos():
 
 
 def test_rechaza_n_invalido():
-    with httpx.Client(transport=httpx.MockTransport(lambda _: pytest.fail("petición inesperada"))) as client:
+    with httpx.Client(
+        transport=httpx.MockTransport(lambda _: pytest.fail("petición inesperada"))
+    ) as client:
         with pytest.raises(ValueError):
             EuropePMC(client=client).buscar("x", n=0)
 
 
 def test_cursor_repetido_no_crea_bucle():
     datos = {**RESPUESTA, "nextCursorMark": "*"}
-    with httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, json=datos))) as client:
+    with httpx.Client(
+        transport=httpx.MockTransport(lambda _: httpx.Response(200, json=datos))
+    ) as client:
         assert len(EuropePMC(client=client).buscar("x", n=1001)) == 1
